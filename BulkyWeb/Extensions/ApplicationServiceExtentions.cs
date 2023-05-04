@@ -1,3 +1,6 @@
+using BulkyWeb.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace BulkyWeb.Extensions
 {
     public static class ApplicationServiceExtensions
@@ -7,10 +10,10 @@ namespace BulkyWeb.Extensions
 
         {
             
-            // services.AddDbContext<StoreContext>(opt => 
-            // {
-            //     opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
-            // });
+            services.AddDbContext<ApplicationDbContext>(opt => 
+            {
+                opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
+            });
            
             //services.AddScoped<IProductRepository, ProductRepository>();
            
