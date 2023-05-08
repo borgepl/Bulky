@@ -1,5 +1,6 @@
 using Bulky.DataAccess.Data;
 using Bulky.DataAccess.Repository;
+using Bulky.DataAccess.UoW;
 using Microsoft.EntityFrameworkCore;
 
 namespace BulkyWeb.Extensions
@@ -17,6 +18,7 @@ namespace BulkyWeb.Extensions
             });
            
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
            
             // services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             // services.AddAutoMapper(typeof(MappingProfiles).Assembly);

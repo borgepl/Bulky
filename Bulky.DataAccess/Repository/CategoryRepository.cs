@@ -16,11 +16,6 @@ namespace Bulky.DataAccess.Repository
             this.dbContext = dbContext;
         }
 
-        public void Save()
-        {
-            dbContext.SaveChangesAsync();
-        }
-
         public void Update(Category category)
         {
             dbContext.Categories.Update(category);
