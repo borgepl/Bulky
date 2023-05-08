@@ -1,4 +1,5 @@
 using Bulky.DataAccess.Data;
+using Bulky.DataAccess.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace BulkyWeb.Extensions
@@ -15,7 +16,7 @@ namespace BulkyWeb.Extensions
                 opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
             });
            
-            //services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
            
             // services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             // services.AddAutoMapper(typeof(MappingProfiles).Assembly);
