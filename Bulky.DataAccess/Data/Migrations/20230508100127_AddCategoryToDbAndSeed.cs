@@ -7,11 +7,25 @@
 namespace Bulky.DataAccess.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedCategory : Migration
+    public partial class AddCategoryToDbAndSeed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 30, nullable: false),
+                    DisplayOrder = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
             migrationBuilder.InsertData(
                 table: "Categories",
                 columns: new[] { "Id", "DisplayOrder", "Name" },
@@ -26,20 +40,8 @@ namespace Bulky.DataAccess.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData(
-                table: "Categories",
-                keyColumn: "Id",
-                keyValue: 1);
-
-            migrationBuilder.DeleteData(
-                table: "Categories",
-                keyColumn: "Id",
-                keyValue: 2);
-
-            migrationBuilder.DeleteData(
-                table: "Categories",
-                keyColumn: "Id",
-                keyValue: 3);
+            migrationBuilder.DropTable(
+                name: "Categories");
         }
     }
 }
