@@ -26,7 +26,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            List<Product> productList = (List<Product>) await _unitOfWork.Product.GetAllAsync();
+            List<Product> productList = (List<Product>) await _unitOfWork.Product.GetAllAsync(includeProperties:"Category");
 
             return View(productList);
         }
@@ -76,17 +76,38 @@ namespace BulkyWeb.Areas.Admin.Controllers
                 string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                 string productPath = Path.Combine(wwwRootPath, @"images\product");
 
+                if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
+                {
+                    // delete old image
+                    var oldImagePath = Path.Combine(wwwRootPath,productVM.Product.ImageUrl.TrimStart('\\'));
+
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
                 using ( var filestream = new FileStream(Path.Combine(productPath, filename), FileMode.Create))
                 {
                     file.CopyTo(filestream);
                 }
-                productVM.Product.ImageUrl = @"images\product" + filename;
+                productVM.Product.ImageUrl = @"\images\product\" + filename;
             }
-            _unitOfWork.Product.Add(productVM.Product);
-            _unitOfWork.Save();
 
-            TempData["success"]= "Product created successfully";
-             return RedirectToAction("Index");
+            if (productVM.Product.Id == 0) // new product
+            {
+                _unitOfWork.Product.Add(productVM.Product);
+                TempData["success"]= "Product created successfully";
+            }
+            else 
+            {
+                _unitOfWork.Product.Update(productVM.Product);
+                TempData["success"]= "Product updated successfully";
+            }
+            
+            _unitOfWork.Save();
+            return RedirectToAction("Index");
+
             }
             else 
             {

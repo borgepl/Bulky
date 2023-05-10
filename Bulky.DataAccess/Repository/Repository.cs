@@ -19,16 +19,32 @@ namespace Bulky.DataAccess.Repository
             dbSet.Add(entity);
         }
 
-        public async Task<T> GetAsync(Expression<Func<T, bool>> critera)
+        public async Task<T> GetAsync(Expression<Func<T, bool>> critera, string includeProperties = null)
         {
             IQueryable<T> query = dbSet;
             query = query.Where(critera);
+             if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties
+                    .Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries ))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<IReadOnlyList<T>> GetAllAsync()
+        public async Task<IReadOnlyList<T>> GetAllAsync( string includeProperties = null )
         {
             IQueryable<T> query = dbSet;
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties
+                    .Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries ))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
             return await query.ToListAsync();
         }
 

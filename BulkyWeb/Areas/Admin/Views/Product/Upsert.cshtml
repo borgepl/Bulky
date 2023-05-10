@@ -14,11 +14,16 @@
     </div>
     <div class="card-body p-4">
         <form method="post" class="row" enctype="multipart/form-data">
-        <div class="border p-3">
+
+        <input asp-for="Product.Id" hidden>
+        <input asp-for="Product.ImageUrl" hidden>
+
+             <div class="row">
+                <div class="col-10">
+                    <div class="border p-3">
         
             @* <div asp-validation-summary="ModelOnly"></div> *@
 
-             <input asp-for="Product.Id" hidden>
             <div class="form-floating py-2 col-12">
                 <input asp-for="Product.Title" type="text" class="form-control border-0 shadow" id="floatingInput" placeholder="Product Title">
                 <label asp-for="Product.Title" class="ms-2" for="floatingInput"></label>
@@ -80,6 +85,14 @@
                 </div>
             </div>    
         </div>
+
+                </div>
+                <div class="col-2">
+                    <img src="@Model.Product.ImageUrl" width="100%"
+                        style="border-radius:5px; border:1px solid">
+                </div>
+             </div>
+        
         </form>
     </div>
 </div>
