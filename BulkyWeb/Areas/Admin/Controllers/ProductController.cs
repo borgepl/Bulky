@@ -14,12 +14,14 @@ namespace BulkyWeb.Areas.Admin.Controllers
     {
         private readonly ILogger<ProductController> _logger;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductController(ILogger<ProductController> logger, IUnitOfWork unitOfWork)
+        public ProductController(ILogger<ProductController> logger, IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<IActionResult> Index()
@@ -68,6 +70,18 @@ namespace BulkyWeb.Areas.Admin.Controllers
 
             if (ModelState.IsValid) 
             {
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            if (file != null)
+            {
+                string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string productPath = Path.Combine(wwwRootPath, @"images\product");
+
+                using ( var filestream = new FileStream(Path.Combine(productPath, filename), FileMode.Create))
+                {
+                    file.CopyTo(filestream);
+                }
+                productVM.Product.ImageUrl = @"images\product" + filename;
+            }
             _unitOfWork.Product.Add(productVM.Product);
             _unitOfWork.Save();
 
