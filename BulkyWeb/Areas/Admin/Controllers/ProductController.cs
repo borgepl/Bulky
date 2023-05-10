@@ -29,7 +29,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
             return View(productList);
         }
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Upsert(int? id)
         {
             IReadOnlyList<Category> categoryList = await _unitOfWork.Category.GetAllAsync();
             IEnumerable<SelectListItem> categorySelectList = categoryList
@@ -39,19 +39,31 @@ namespace BulkyWeb.Areas.Admin.Controllers
                     Value = u.Id.ToString()
                 });
 
-            //ViewBag.categoryList = categorySelectList; 
-            //ViewData["categoryList"] = categorySelectList;
             ProductVM productVM = new()
             {
                 Product = new Product(),
                 CategoryList = categorySelectList
             };
 
-            return View(productVM);
+            if (id == null || id == 0)
+            {
+                // create new product
+                return View(productVM);
+            }
+            else
+            {
+                // update existing product
+                productVM.Product = await _unitOfWork.Product.GetByIdAsync((int)id);
+                if (productVM.Product == null) return NotFound();
+            
+                return View(productVM);
+            }
+
+            
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ProductVM productVM)
+        public async Task<IActionResult> Upsert(ProductVM productVM, IFormFile file )
         {
 
             if (ModelState.IsValid) 
@@ -80,18 +92,6 @@ namespace BulkyWeb.Areas.Admin.Controllers
            
         }
 
-        public async Task<IActionResult> Edit(int id)
-        {
-            if ( id == 0 )
-            {
-                return NotFound();
-            } 
-            Product product = await _unitOfWork.Product.GetByIdAsync(id);
-            if (product == null) {
-                return NotFound();
-            }
-            return View(product);
-        }
 
         [HttpPost]
         public IActionResult Edit(Product product)
