@@ -24,10 +24,10 @@
                 <label asp-for="Product.Title" class="ms-2" for="floatingInput"></label>
                 <span asp-validation-for="Product.Title" class="text-danger"></span>
             </div>
-            <div class="form-floating py-2 col-12">
-                <input asp-for="Product.Description" type="text" class="form-control border-0 shadow" id="floatingDesc" placeholder="Description">
-                <label asp-for="Product.Description" class="ms-2" for="floatingDesc"></label>
-                <span asp-validation-for="Product.Description" class="text-danger"></span>
+            <div class="py-2 col-12">
+                <label asp-for="Product.Description" class="ms-2 text-muted"></label>
+                <textarea asp-for="Product.Description" class="form-control border-0 shadow" placeholder="Description">
+                </textarea>
             </div>
             <div class="form-floating py-2 col-12">
                 <input asp-for="Product.ISBN" type="text" class="form-control border-0 shadow" id="floatingISBN" placeholder="ISBN">
@@ -85,6 +85,19 @@
 </div>
 
 @section Scripts{
+    <script>
+    tinymce.init({
+      selector: 'textarea',
+      plugins: 'anchor autolink charmap codesample emoticons lists table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss',
+      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | addcomment showcomments | align lineheight | checklist numlist bullist indent outdent',
+      tinycomments_mode: 'embedded',
+      tinycomments_author: 'Author name',
+      mergetags_list: [
+        { value: 'First.Name', title: 'First Name' },
+        { value: 'Email', title: 'Email' },
+         ]
+        });
+    </script>
     @{
         <partial name="_ValidationScriptsPartial"/>
     }
