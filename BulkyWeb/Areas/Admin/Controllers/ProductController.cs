@@ -179,5 +179,16 @@ namespace BulkyWeb.Areas.Admin.Controllers
         {
             return View("Error!");
         }
+
+        #region APICALLS
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            List<Product> productList = (List<Product>) await _unitOfWork.Product.GetAllAsync(includeProperties:"Category");
+
+            return Json(new {data = productList});
+        }   
+        #endregion
     }
 }
