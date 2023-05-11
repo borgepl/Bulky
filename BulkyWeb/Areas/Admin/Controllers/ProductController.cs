@@ -143,20 +143,8 @@ namespace BulkyWeb.Areas.Admin.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || id == 0 )
-            {
-                return NotFound();
-            } 
-            Product product = await _unitOfWork.Product.GetAsync(u => u.Id == id);
-            if (product == null) {
-                return NotFound();
-            }
-            return View(product);
-        }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("DeleteProd")]
         public async Task<IActionResult> DeletePost(int id)
         {
             Product product = await _unitOfWork.Product.GetByIdAsync(id);
@@ -189,6 +177,29 @@ namespace BulkyWeb.Areas.Admin.Controllers
 
             return Json(new {data = productList});
         }   
+
+        public async Task<IActionResult> Delete(int? id)
+        {
+            Product productToDelete = await _unitOfWork.Product.GetByIdAsync((int)id);
+            if (productToDelete == null) return Json(new { success = false, message = "Error while deleting" });
+
+            // delete old image
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+            var oldImagePath = Path.Combine(wwwRootPath,productToDelete.ImageUrl.TrimStart('\\'));
+
+            if (System.IO.File.Exists(oldImagePath))
+            {
+                System.IO.File.Delete(oldImagePath);
+            }
+
+            _unitOfWork.Product.Remove(productToDelete);
+            _unitOfWork.Save();
+
+            return Json(new { success = true, message = "Product deleted successfully" });
+        }   
+
+
         #endregion
     }
 }
