@@ -178,6 +178,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
             return Json(new {data = productList});
         }   
 
+        [HttpDelete]
         public async Task<IActionResult> Delete(int? id)
         {
             Product productToDelete = await _unitOfWork.Product.GetByIdAsync((int)id);
