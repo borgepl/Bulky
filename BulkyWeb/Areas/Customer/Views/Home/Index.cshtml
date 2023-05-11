@@ -7,7 +7,7 @@
     <h2 class="display-8">Welcome to Bulky Books</h2>
 </div>
 
-<div class="row pb-3">
+<div class="row pb-3 my-4">
     @foreach (var product in Model)
     {
         <div class="col-lg-3 col-sm-6">
@@ -15,7 +15,9 @@
                 <div class="col-12 p-1">
                     <div class="card border-0 p-3 shadow border-top border-5 rounded" style="cursor: pointer;">
                         <div class="image position-relative" style="cursor: pointer;">
-                            <img src="@product.ImageUrl" class="card-img-top">
+                            <img src="@product.ImageUrl" class="card-img-top"
+                            href='@Url.Action("Details", "Customer")'
+                             >
                         </div>
                         
                         <div class="card-body pb-0">
@@ -31,7 +33,8 @@
                             </div>
                         </div>
                         <div>
-                            <a href="" class="btn btn-primary bg-gradient border-0 form-control">Details</a>
+                            <a asp-action="Details" asp-route-id="@product.Id"
+                                class="btn btn-primary bg-gradient border-0 form-control">Details</a>
                         </div>
                     </div>
                 </div>

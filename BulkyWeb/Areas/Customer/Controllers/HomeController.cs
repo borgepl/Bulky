@@ -24,6 +24,13 @@ public class HomeController : Controller
         return View(productList);
     }
 
+    public async Task<IActionResult> Details(int id)
+    {
+        Product product = await _unitOfWork.Product.GetAsync(u => u.Id == id, includeProperties:"Category");
+
+        return View(product);
+    }
+
     public IActionResult Privacy()
     {
         return View();
