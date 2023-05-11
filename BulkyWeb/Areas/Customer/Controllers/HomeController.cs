@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Bulky.DataAccess.UoW;
 using Bulky.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,16 +9,19 @@ namespace BulkyWeb.Areas.Customer.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IUnitOfWork _unitOfWork;
 
-    
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
     {
         _logger = logger;
+        _unitOfWork = unitOfWork;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        IEnumerable<Product> productList = await _unitOfWork.Product.GetAllAsync(includeProperties:"Category");
+
+        return View(productList);
     }
 
     public IActionResult Privacy()
