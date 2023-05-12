@@ -139,7 +139,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     // assign role (to be removed later)
-                    if (string.IsNullOrEmpty(Input.Role)) {
+                    if (!string.IsNullOrEmpty(Input.Role)) {
                         await _userManager.AddToRoleAsync(user, Input.Role);
                     }
                     else {
