@@ -8,6 +8,7 @@ builder.Services.AddControllersWithViews();
 
 // Our own Services Extentions
 builder.Services.AddMyAppServices(builder.Configuration);
+builder.Services.AddMyIdentityServices(builder.Configuration);
 
 var app = builder.Build();
 

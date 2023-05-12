@@ -18,7 +18,6 @@ namespace BulkyWeb.Extensions
                 opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
             });
            
-            services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
