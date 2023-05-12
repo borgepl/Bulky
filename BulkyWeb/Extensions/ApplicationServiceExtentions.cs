@@ -1,6 +1,7 @@
 using Bulky.DataAccess.Data;
 using Bulky.DataAccess.Repository;
 using Bulky.DataAccess.UoW;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace BulkyWeb.Extensions
@@ -17,6 +18,8 @@ namespace BulkyWeb.Extensions
                 opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
             });
            
+            services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<ApplicationDbContext>();
+
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
            
