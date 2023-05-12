@@ -3,6 +3,7 @@ using BulkyWeb.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddRazorPages(); // used for identity pages
 builder.Services.AddControllersWithViews();
 
 // Our own Services Extentions
@@ -26,6 +27,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
