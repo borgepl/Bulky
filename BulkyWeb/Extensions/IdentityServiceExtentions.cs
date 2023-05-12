@@ -10,7 +10,9 @@ namespace BulkyWeb.Extensions
         public static IServiceCollection AddMyIdentityServices(this IServiceCollection services,  IConfiguration config)
         {
             
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
             services.AddScoped<IEmailSender, EmailSender>();
 
             return services;
