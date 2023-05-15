@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
+using API.Extensions;
 using Bulky.DataAccess.UoW;
 using Bulky.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BulkyWeb.Areas.Customer.Controllers;
@@ -35,6 +37,20 @@ public class HomeController : Controller
         };
 
         return View(shoppingCart);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public IActionResult Details(ShoppingCart shoppingCart)
+    {
+
+        var userId = User.GetUserId();
+        shoppingCart.ApplicationUserId = userId;
+
+        _unitOfWork.ShoppingCart.Add(shoppingCart);
+        _unitOfWork.Save();
+
+        return RedirectToAction(nameof(Index));
     }
 
     public IActionResult Privacy()
