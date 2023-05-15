@@ -41,13 +41,26 @@ public class HomeController : Controller
 
     [HttpPost]
     [Authorize]
-    public IActionResult Details(ShoppingCart shoppingCart)
+    public async Task<IActionResult> Details(ShoppingCart shoppingCart)
     {
 
         var userId = User.GetUserId();
         shoppingCart.ApplicationUserId = userId;
 
-        _unitOfWork.ShoppingCart.Add(shoppingCart);
+        ShoppingCart cartFromDB = await _unitOfWork.ShoppingCart.GetAsync(u => u.ApplicationUserId == userId &&
+            u.ProductId == shoppingCart.ProductId);
+
+        if (cartFromDB != null) {
+            // shopping cart exists - update cart
+            cartFromDB.Count += shoppingCart.Count;
+            _unitOfWork.ShoppingCart.Update(cartFromDB);
+
+        } else {
+            // add cart
+            _unitOfWork.ShoppingCart.Add(shoppingCart);
+        }
+
+        
         _unitOfWork.Save();
 
         return RedirectToAction(nameof(Index));
