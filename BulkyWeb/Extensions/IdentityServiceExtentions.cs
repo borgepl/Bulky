@@ -22,6 +22,14 @@ namespace BulkyWeb.Extensions
 
             services.AddScoped<IEmailSender, EmailSender>();
 
+            services.AddAuthentication()
+                .AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = config["Authentication:Google:ClientId"];
+                    googleOptions.ClientSecret = config["Authentication:Google:ClientSecret"];
+                    googleOptions.SignInScheme = IdentityConstants.ExternalScheme;
+                });
+
             services.AddAuthorization();
 
             return services;
