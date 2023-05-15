@@ -10,6 +10,7 @@ namespace Bulky.DataAccess.UoW
     {
         ICategoryRepository Category { get; }
         IProductRepository Product { get; }
+        IAddressRepository Address { get; }
 
         void Save();
     }

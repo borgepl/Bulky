@@ -13,12 +13,14 @@ namespace Bulky.DataAccess.UoW
         public ICategoryRepository Category { get; private set;}
 
         public IProductRepository Product { get; private set;}
+        public IAddressRepository Address { get; private set; }
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
             this.dbContext = dbContext;
             this.Category = new CategoryRepository(dbContext);
             this.Product = new ProductRepository(dbContext);
+            this.Address = new AddressRepository(dbContext);
         }
         
 
