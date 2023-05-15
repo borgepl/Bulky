@@ -28,7 +28,13 @@ public class HomeController : Controller
     {
         Product product = await _unitOfWork.Product.GetAsync(u => u.Id == id, includeProperties:"Category");
 
-        return View(product);
+        ShoppingCart shoppingCart = new() {
+            Product = product,
+            Count = 1,
+            ProductId = product.Id
+        };
+
+        return View(shoppingCart);
     }
 
     public IActionResult Privacy()
