@@ -16,6 +16,7 @@ namespace Bulky.DataAccess.UoW
         public IAddressRepository Address { get; private set; }
 
         public IShoppingCartRepository ShoppingCart { get; private set; }
+        public IApplicationUserRepository ApplicationUser { get; private set; }
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
@@ -24,6 +25,7 @@ namespace Bulky.DataAccess.UoW
             this.Product = new ProductRepository(dbContext);
             this.Address = new AddressRepository(dbContext);
             this.ShoppingCart = new ShoppingCartRepository(dbContext);
+            this.ApplicationUser = new ApplicationUserRepository(dbContext);
         }
         
 

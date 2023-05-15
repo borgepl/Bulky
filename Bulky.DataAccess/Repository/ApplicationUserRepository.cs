@@ -7,13 +7,12 @@ using Bulky.Models.Identity;
 
 namespace Bulky.DataAccess.Repository
 {
-    public class AddressRepository : Repository<Address>, IAddressRepository
+    public class ApplicationUserRepository : Repository<ApplicationUser>, IApplicationUserRepository
     {
         private readonly ApplicationDbContext dbContext;
-        public AddressRepository(ApplicationDbContext dbContext) : base(dbContext)
+        public ApplicationUserRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
             this.dbContext = dbContext;
-            
         }
     }
 }
