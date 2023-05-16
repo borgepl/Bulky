@@ -8,7 +8,7 @@ namespace Bulky.DataAccess.Repository
 {
     public interface IRepository<T> where T : class
     {
-        Task<IReadOnlyList<T>> GetAllAsync( string includeProperties = null );
+        Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>> filter, string includeProperties = null );
 
         Task<T> GetByIdAsync(int id );
        

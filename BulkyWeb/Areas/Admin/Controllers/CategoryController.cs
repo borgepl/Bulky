@@ -24,7 +24,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            List<Category> objCategoryList = (List<Category>) await _unitOfWork.Category.GetAllAsync();
+            List<Category> objCategoryList = (List<Category>) await _unitOfWork.Category.GetAllAsync(u => u.Id != 0);
 
             return View(objCategoryList);
         }

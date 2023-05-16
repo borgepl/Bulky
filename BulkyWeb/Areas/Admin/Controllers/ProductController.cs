@@ -29,14 +29,14 @@ namespace BulkyWeb.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            List<Product> productList = (List<Product>) await _unitOfWork.Product.GetAllAsync(includeProperties:"Category");
+            List<Product> productList = (List<Product>) await _unitOfWork.Product.GetAllAsync(null,includeProperties:"Category");
 
             return View(productList);
         }
 
         public async Task<IActionResult> Upsert(int? id)
         {
-            IReadOnlyList<Category> categoryList = await _unitOfWork.Category.GetAllAsync();
+            IReadOnlyList<Category> categoryList = await _unitOfWork.Category.GetAllAsync(null);
             IEnumerable<SelectListItem> categorySelectList = categoryList
                 .Select(u => new SelectListItem
                 {
@@ -114,7 +114,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
             }
             else 
             {
-                IReadOnlyList<Category> categoryList = await _unitOfWork.Category.GetAllAsync();
+                IReadOnlyList<Category> categoryList = await _unitOfWork.Category.GetAllAsync(null);
                 IEnumerable<SelectListItem> categorySelectList = categoryList
                     .Select(u => new SelectListItem
                     {
@@ -176,7 +176,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            List<Product> productList = (List<Product>) await _unitOfWork.Product.GetAllAsync(includeProperties:"Category");
+            List<Product> productList = (List<Product>) await _unitOfWork.Product.GetAllAsync(null,includeProperties:"Category");
 
             return Json(new {data = productList});
         }   

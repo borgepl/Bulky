@@ -34,9 +34,10 @@ namespace Bulky.DataAccess.Repository
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<IReadOnlyList<T>> GetAllAsync( string includeProperties = null )
+        public async Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>> critera = null, string includeProperties = null )
         {
             IQueryable<T> query = dbSet;
+            if (critera != null) query = query.Where(critera);
             if (!string.IsNullOrEmpty(includeProperties))
             {
                 foreach (var includeProp in includeProperties
