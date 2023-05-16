@@ -47,6 +47,11 @@ namespace BulkyWeb.Areas.Customer.Controllers
             return View(shoppingCartVM);
         }
 
+        public IActionResult Summary()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> Plus(int cartId)
         {
             var cartFromDb = await _unitOfWork.ShoppingCart.GetByIdAsync(cartId);
