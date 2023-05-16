@@ -47,6 +47,44 @@ namespace BulkyWeb.Areas.Customer.Controllers
             return View(shoppingCartVM);
         }
 
+        public async Task<IActionResult> Plus(int cartId)
+        {
+            var cartFromDb = await _unitOfWork.ShoppingCart.GetByIdAsync(cartId);
+            cartFromDb.Count += 1;
+            _unitOfWork.ShoppingCart.Update(cartFromDb);
+            _unitOfWork.Save();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+         public async Task<IActionResult> Minus(int cartId)
+        {
+            var cartFromDb = await _unitOfWork.ShoppingCart.GetByIdAsync(cartId);
+            if (cartFromDb.Count <= 1) {
+                // remove from cart
+                _unitOfWork.ShoppingCart.Remove(cartFromDb);
+
+            } else {
+                cartFromDb.Count -= 1;
+                _unitOfWork.ShoppingCart.Update(cartFromDb);
+            }
+            
+            _unitOfWork.Save();
+            
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Remove(int cartId)
+        {
+            var cartFromDb = await _unitOfWork.ShoppingCart.GetByIdAsync(cartId);
+              
+            // remove from cart
+             _unitOfWork.ShoppingCart.Remove(cartFromDb);
+            _unitOfWork.Save();
+            
+            return RedirectToAction(nameof(Index));
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
