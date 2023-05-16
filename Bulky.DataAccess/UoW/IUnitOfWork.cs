@@ -13,6 +13,8 @@ namespace Bulky.DataAccess.UoW
         IAddressRepository Address { get; }
         IShoppingCartRepository ShoppingCart { get; }
         IApplicationUserRepository ApplicationUser { get; }
+        IOrderHeaderRepository OrderHeader { get;}
+        IOrderDetailRepository OrderDetail { get;}
 
         void Save();
     }
