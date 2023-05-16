@@ -33,23 +33,43 @@ namespace BulkyWeb.Areas.Customer.Controllers
 
             shoppingCartVM = new() {
                 ShoppingCartList = await _unitOfWork.ShoppingCart.GetAllAsync(u => u.ApplicationUserId == userId, 
-                    includeProperties:"Product")
+                    includeProperties:"Product"),
+                OrderHeader = new()
             };
 
             foreach (var cart in shoppingCartVM.ShoppingCartList) {
                 cart.Price = GetPriceBasedOnQuantity(cart);
-                shoppingCartVM.OrderTotal += (cart.Price * cart.Count);
-            }
-            {
-                
+                shoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
             }
 
             return View(shoppingCartVM);
         }
 
-        public IActionResult Summary()
+        public async Task<ActionResult> Summary()
         {
-            return View();
+            var userId = User.GetUserId();
+
+            shoppingCartVM = new() {
+                ShoppingCartList = await _unitOfWork.ShoppingCart.GetAllAsync(u => u.ApplicationUserId == userId, 
+                    includeProperties:"Product"),
+                OrderHeader = new()
+            };
+
+            shoppingCartVM.OrderHeader.ApplicationUser = await _unitOfWork.ApplicationUser.GetAsync(u => u.Id == userId, includeProperties:"Address");
+
+            shoppingCartVM.OrderHeader.Name = shoppingCartVM.OrderHeader.ApplicationUser.Name;
+            shoppingCartVM.OrderHeader.PhoneNumber = shoppingCartVM.OrderHeader.ApplicationUser.PhoneNumber;
+            shoppingCartVM.OrderHeader.Street = shoppingCartVM.OrderHeader.ApplicationUser.Address.Street;
+            shoppingCartVM.OrderHeader.City = shoppingCartVM.OrderHeader.ApplicationUser.Address.City;
+            shoppingCartVM.OrderHeader.State = shoppingCartVM.OrderHeader.ApplicationUser.Address.State;
+            shoppingCartVM.OrderHeader.PostalCode = shoppingCartVM.OrderHeader.ApplicationUser.Address.PostalCode;
+
+             foreach (var cart in shoppingCartVM.ShoppingCartList) {
+                cart.Price = GetPriceBasedOnQuantity(cart);
+                shoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+            }
+
+            return View(shoppingCartVM);
         }
 
         public async Task<IActionResult> Plus(int cartId)
