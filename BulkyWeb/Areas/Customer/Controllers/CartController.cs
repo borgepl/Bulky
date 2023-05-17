@@ -5,11 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Extensions;
 using Bulky.DataAccess.UoW;
+using Bulky.Utility;
 using Bulky.Models;
 using Bulky.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Bulky.Models.Identity;
 
 namespace BulkyWeb.Areas.Customer.Controllers
 {
@@ -20,6 +22,7 @@ namespace BulkyWeb.Areas.Customer.Controllers
         private readonly ILogger<CartController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
+        [BindProperty]
         public ShoppingCartVM shoppingCartVM {get; set;}
         public CartController(ILogger<CartController> logger, IUnitOfWork unitOfWork)
         {
@@ -70,6 +73,71 @@ namespace BulkyWeb.Areas.Customer.Controllers
             }
 
             return View(shoppingCartVM);
+        }
+
+        [HttpPost]
+        [ActionName("Summary")]
+         public async Task<ActionResult> SummaryPost()
+        {
+            var userId = User.GetUserId();
+
+            shoppingCartVM.ShoppingCartList = await _unitOfWork.ShoppingCart.GetAllAsync(u => u.ApplicationUserId == userId, 
+                    includeProperties:"Product");
+
+            shoppingCartVM.OrderHeader.OrderDate = DateTime.Now;
+            shoppingCartVM.OrderHeader.ApplicationUserId = userId;
+
+            ApplicationUser applicationUser = await _unitOfWork.ApplicationUser.GetAsync(u => u.Id == userId);
+
+             foreach (var cart in shoppingCartVM.ShoppingCartList) {
+                cart.Price = GetPriceBasedOnQuantity(cart);
+                shoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+            }
+
+           /*  if (applicationUser.CompanyId.GetValueOrDefault() == 0) {
+                // it is a regular customer account
+            }   SetStatusForCustomer();
+            
+            else {
+                // it is a company user
+                 shoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
+                shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+            } */
+
+            SetStatusForCustomer();
+
+            // create orderHeader is DB
+            _unitOfWork.OrderHeader.Add(shoppingCartVM.OrderHeader);
+            _unitOfWork.Save();
+
+            // create OrderDetail in DB
+            foreach (var cart in shoppingCartVM.ShoppingCartList)
+            {
+                OrderDetail orderDetail = new() {
+                    ProductId = cart.ProductId,
+                    OrderHeaderId = shoppingCartVM.OrderHeader.Id,
+                    Price = cart.Price,
+                    Count = cart.Count
+                };
+                _unitOfWork.OrderDetail.Add(orderDetail);
+                _unitOfWork.Save();
+            }
+
+            // stripe logic for customer account
+
+
+            return RedirectToAction(nameof(OrderConfirmation), new { id = shoppingCartVM.OrderHeader.Id});
+        }
+
+        private void SetStatusForCustomer()
+        {
+            shoppingCartVM.OrderHeader.OrderStatus = SD.StatusPending;
+            shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
+        }
+
+        public IActionResult OrderConfirmation(int id)
+        {
+            return View(id);
         }
 
         public async Task<IActionResult> Plus(int cartId)
