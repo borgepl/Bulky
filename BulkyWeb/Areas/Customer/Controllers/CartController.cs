@@ -167,8 +167,37 @@ namespace BulkyWeb.Areas.Customer.Controllers
             shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
         }
 
-        public IActionResult OrderConfirmation(int id)
+        public async Task<IActionResult> OrderConfirmation(int id)
         {
+            OrderHeader orderHeader = await _unitOfWork.OrderHeader.GetAsync(u => u.Id == id, 
+                includeProperties:"ApplicationUser");
+
+            if (orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment) {
+
+                 var service = new SessionService();
+                Session session = service.Get(orderHeader.SessionId);
+
+                if (session.PaymentStatus.ToLower() == "paid") {
+					_unitOfWork.OrderHeader.UpdateStripePaymentID(id, session.Id, session.PaymentIntentId);
+                    _unitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
+                    _unitOfWork.Save();
+				}
+                //HttpContext.Session.Clear();
+
+                
+            }
+
+            // _emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - Bulky Book",
+            //     $"<p>New Order Created - {orderHeader.Id}</p>");
+
+            // Delete shoppingCarts when order and payment are confirmed
+
+            IReadOnlyList<ShoppingCart> shoppingCarts = await _unitOfWork.ShoppingCart
+                .GetAllAsync(u => u.ApplicationUserId == orderHeader.ApplicationUserId);
+
+            _unitOfWork.ShoppingCart.RemoveRange(shoppingCarts);
+            _unitOfWork.Save();
+
             return View(id);
         }
 
