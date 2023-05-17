@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Bulky.Models.Identity;
+using Stripe.Checkout;
 
 namespace BulkyWeb.Areas.Customer.Controllers
 {
@@ -124,9 +125,40 @@ namespace BulkyWeb.Areas.Customer.Controllers
             }
 
             // stripe logic for customer account
+            var domain = "https://localhost:5001/";
+			var options = new SessionCreateOptions 
+                {
+					SuccessUrl = domain+ $"customer/cart/OrderConfirmation?id={shoppingCartVM.OrderHeader.Id}",
+                    CancelUrl = domain+"customer/cart/index",
+					LineItems = new List<SessionLineItemOptions>(),
+					Mode = "payment",
+				};
+
+                foreach(var item in shoppingCartVM.ShoppingCartList) {
+                    var sessionLineItem = new SessionLineItemOptions {
+                        PriceData = new SessionLineItemPriceDataOptions {
+                            UnitAmount = (long)(item.Price * 100), // $20.50 => 2050
+                            Currency = "eur",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions {
+                                Name = item.Product.Title
+                            }
+                        },
+                        Quantity = item.Count
+                    };
+                    options.LineItems.Add(sessionLineItem);
+                }
 
 
-            return RedirectToAction(nameof(OrderConfirmation), new { id = shoppingCartVM.OrderHeader.Id});
+				var service = new SessionService();
+				Session session = service.Create(options);
+
+                _unitOfWork.OrderHeader.UpdateStripePaymentID(shoppingCartVM.OrderHeader.Id, session.Id, session.PaymentIntentId);
+                _unitOfWork.Save();
+                Response.Headers.Add("Location", session.Url);
+                
+                return new StatusCodeResult(303);
+        
+            //return RedirectToAction(nameof(OrderConfirmation), new { id = shoppingCartVM.OrderHeader.Id});
         }
 
         private void SetStatusForCustomer()
