@@ -1,6 +1,7 @@
 using Bulky.DataAccess.Data;
 using Bulky.DataAccess.Repository;
 using Bulky.DataAccess.UoW;
+using Bulky.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,8 @@ namespace BulkyWeb.Extensions
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.Configure<StripeSettings>(config.GetSection("StripeSettings"));
            
             // services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             // services.AddAutoMapper(typeof(MappingProfiles).Assembly);
