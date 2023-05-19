@@ -1,5 +1,6 @@
 using Bulky.DataAccess.UoW;
 using Bulky.Models;
+using Bulky.Utility;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BulkyWeb.Areas.Admin.Controllers
@@ -31,9 +32,27 @@ namespace BulkyWeb.Areas.Admin.Controllers
         #region APICALLS
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(string status)
         {
-            List<OrderHeader> orderList = (List<OrderHeader>) await _unitOfWork.OrderHeader.GetAllAsync(null,includeProperties:"ApplicationUser");
+            IEnumerable<OrderHeader> orderList = await _unitOfWork.OrderHeader.GetAllAsync(null,includeProperties:"ApplicationUser");
+
+            switch (status) {
+                case "pending":
+                orderList = orderList.Where(s => s.PaymentStatus == SD.PaymentStatusPending);
+                break;
+                case "inprocess":
+                orderList = orderList.Where(s => s.OrderStatus == SD.StatusInProcess);
+                break;
+                case "completed":
+                orderList = orderList.Where(s => s.OrderStatus == SD.StatusShipped);
+                break;  
+                case "approved":
+                orderList = orderList.Where(s => s.OrderStatus == SD.StatusApproved);
+                break;
+                default:
+                
+                break;
+            }
 
             return Json(new {data = orderList});
         }   
