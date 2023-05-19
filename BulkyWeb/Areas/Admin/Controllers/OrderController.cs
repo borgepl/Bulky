@@ -5,10 +5,12 @@ using Bulky.Models.ViewModels;
 using Bulky.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 
 namespace BulkyWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
     public class OrderController : Controller
     {
         private readonly ILogger<OrderController> _logger;
@@ -61,6 +63,65 @@ namespace BulkyWeb.Areas.Admin.Controllers
             TempData["success"] = "Order Detail updated successfully";
 
             return RedirectToAction(nameof(Details), new { orderId = orderHeaderFromDb.Id});
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public IActionResult StartProcessing()
+        {
+            _unitOfWork.OrderHeader.UpdateStatus(orderVM.OrderHeader.Id, SD.StatusInProcess);
+            _unitOfWork.Save();
+
+             TempData["success"] = "Order Detail updated successfully";
+
+            return RedirectToAction(nameof(Details), new { orderId = orderVM.OrderHeader.Id});
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public async Task<IActionResult> ShipOrder()
+        {
+            var orderHeader = await _unitOfWork.OrderHeader.GetAsync(u => u.Id == orderVM.OrderHeader.Id);
+            orderHeader.Carrier = orderVM.OrderHeader.Carrier;
+            orderHeader.TrackingNumber = orderVM.OrderHeader.TrackingNumber;
+            orderHeader.OrderStatus = SD.StatusShipped;
+            orderHeader.ShippingDate = DateTime.Now;
+
+            _unitOfWork.OrderHeader.Update(orderHeader);
+            _unitOfWork.Save();
+
+             TempData["success"] = "Order shipped successfully";
+
+            return RedirectToAction(nameof(Details), new { orderId = orderVM.OrderHeader.Id});
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public async Task<IActionResult> CancelOrder()
+        {
+            var orderHeader = await _unitOfWork.OrderHeader.GetAsync(u => u.Id == orderVM.OrderHeader.Id);
+            if (orderHeader.PaymentStatus == SD.PaymentStatusApproved) {
+
+                // payment already done - give refund
+                var options = new RefundCreateOptions {
+                    Reason = RefundReasons.RequestedByCustomer,
+                    PaymentIntent = orderHeader.PaymentIntentId, 
+                };
+
+                var service = new RefundService();
+                Refund refund = service.CreateAsync(options).GetAwaiter().GetResult();
+
+                _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
+
+            } else {
+                _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
+            }
+
+            _unitOfWork.Save();
+
+            TempData["success"] = "Order cancelled successfully";
+
+            return RedirectToAction(nameof(Details), new { orderId = orderVM.OrderHeader.Id});
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
