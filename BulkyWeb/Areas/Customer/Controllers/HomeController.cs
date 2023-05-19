@@ -2,6 +2,7 @@
 using API.Extensions;
 using Bulky.DataAccess.UoW;
 using Bulky.Models;
+using Bulky.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,13 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
+        var userId = User.GetUserId();
+        if (!string.IsNullOrEmpty(userId)) {
+            IReadOnlyList<ShoppingCart> cartsFromDBForUser = 
+                await _unitOfWork.ShoppingCart.GetAllAsync(u => u.ApplicationUserId == userId);
+            HttpContext.Session.SetInt32(SD.SessionCart, cartsFromDBForUser.Count());
+        }
+
         IEnumerable<Product> productList = await _unitOfWork.Product.GetAllAsync(null,includeProperties:"Category");
 
         return View(productList);
@@ -54,14 +62,18 @@ public class HomeController : Controller
             // shopping cart exists - update cart
             cartFromDB.Count += shoppingCart.Count;
             _unitOfWork.ShoppingCart.Update(cartFromDB);
+            _unitOfWork.Save();
 
         } else {
             // add cart
             _unitOfWork.ShoppingCart.Add(shoppingCart);
+            _unitOfWork.Save();
+            IReadOnlyList<ShoppingCart> cartsFromDBForUser = await _unitOfWork.ShoppingCart.GetAllAsync(u => u.ApplicationUserId == userId);
+            HttpContext.Session.SetInt32(SD.SessionCart, cartsFromDBForUser.Count());
         }
 
         
-        _unitOfWork.Save();
+       
 
         return RedirectToAction(nameof(Index));
     }

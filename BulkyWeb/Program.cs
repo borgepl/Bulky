@@ -10,6 +10,7 @@ builder.Services.AddControllersWithViews();
 // Our own Services Extentions
 builder.Services.AddMyAppServices(builder.Configuration);
 builder.Services.AddMyIdentityServices(builder.Configuration);
+builder.Services.AddMySessionServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -30,6 +31,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 app.MapRazorPages();
 app.MapControllerRoute(
