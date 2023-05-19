@@ -1,3 +1,4 @@
+using API.Extensions;
 using Bulky.DataAccess.UoW;
 using Bulky.Models;
 using Bulky.Models.ViewModels;
@@ -74,7 +75,15 @@ namespace BulkyWeb.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll(string status)
         {
-            IEnumerable<OrderHeader> orderList = await _unitOfWork.OrderHeader.GetAllAsync(null,includeProperties:"ApplicationUser");
+            IEnumerable<OrderHeader> orderList;
+
+            if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee)) {
+                orderList = await _unitOfWork.OrderHeader.GetAllAsync(null,includeProperties:"ApplicationUser");
+            } else {
+                var userId = User.GetUserId();
+                 orderList = await _unitOfWork.OrderHeader
+                    .GetAllAsync(u => u.ApplicationUserId == userId,includeProperties:"ApplicationUser");
+            }
 
             switch (status) {
                 case "pending":
