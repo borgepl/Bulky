@@ -119,8 +119,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            // Seed Roles
-            await SeedRoles.SeedRolesAsync(_roleManager);
+           
 
             Input = new() {
                 RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem {

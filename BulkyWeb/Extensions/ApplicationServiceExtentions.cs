@@ -1,4 +1,5 @@
 using Bulky.DataAccess.Data;
+using Bulky.DataAccess.DBInitializer;
 using Bulky.DataAccess.Repository;
 using Bulky.DataAccess.UoW;
 using Bulky.Utility;
@@ -19,7 +20,7 @@ namespace BulkyWeb.Extensions
                 opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
             });
            
-
+            services.AddScoped<IDBInitializer, DBInitializer>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
