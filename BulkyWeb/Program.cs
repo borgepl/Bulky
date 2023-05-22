@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bulky.DataAccess.DBInitializer;
 using BulkyWeb.Extensions;
 using Stripe;
@@ -6,7 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages(); // used for identity pages
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        });
 
 // Our own Services Extentions
 builder.Services.AddMyAppServices(builder.Configuration);
