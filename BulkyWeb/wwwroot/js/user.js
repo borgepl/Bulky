@@ -23,7 +23,7 @@ function loadDataTable() {
                         <div class="text-center">
                             <a onclick=LockUnlock('${data.id}') class="btn btn-success text-white">
                                 <i class="bi bi-unlock-fill"></i> Unlocked</a>
-                            <a  class="btn btn-danger text-white">
+                            <a href="/admin/user/edit?id=${data.id}" class="btn btn-danger text-white">
                                 <i class="bi bi-pencil-square"></i> Permission</a>
                         </div>`
                     } else {
@@ -31,7 +31,7 @@ function loadDataTable() {
                         <div class="text-center">
                             <a onclick=LockUnlock('${data.id}') class="btn btn-danger text-white">
                                 <i class="bi bi-lock-fill"></i> Locked</a>
-                            <a  class="btn btn-danger text-white">
+                            <a href="/admin/user/edit?id=${data.id}" class="btn btn-danger text-white">
                                 <i class="bi bi-pencil-square"></i> Permission</a>
                         </div>`
                     }

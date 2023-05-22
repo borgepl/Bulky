@@ -11,6 +11,9 @@ using Bulky.DataAccess.UoW;
 using Bulky.Models.Identity;
 using Bulky.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
+using Bulky.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Identity;
 
 namespace BulkyWeb.Areas.Admin.Controllers
 {
@@ -21,16 +24,69 @@ namespace BulkyWeb.Areas.Admin.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ApplicationDbContext _dbContext;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public UserController(ILogger<UserController> logger, IUnitOfWork unitOfWork, ApplicationDbContext dbContext)
+        public UserController(ILogger<UserController> logger, IUnitOfWork unitOfWork, 
+            ApplicationDbContext dbContext, UserManager<IdentityUser> userManager)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
             _dbContext = dbContext;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
         {
+            return View();
+        }
+
+        public IActionResult Edit(string id)
+        {
+             string roleId = _dbContext.UserRoles.FirstOrDefault(u => u.UserId == id).RoleId;
+
+            ApplicationUser user = _dbContext.ApplicationUsers.Include(u => u.Address).FirstOrDefault(u => u.Id == id);
+
+            RoleManagementVM roleManagementVM = new()
+            {
+                ApplicationUser = user,
+                RoleList = (IEnumerable<SelectListItem>)_dbContext.Roles
+                    .Select(u => new SelectListItem
+                        {
+                            Text = u.Name,
+                            Value = u.Name
+                        })
+            };
+            roleManagementVM.ApplicationUser.Role = _dbContext.Roles.FirstOrDefault(u => u.Id == roleId).Name;
+
+            return View(roleManagementVM);
+
+
+        }
+
+        [HttpPost]
+        public IActionResult Edit(RoleManagementVM roleVM)
+        {
+            string roleId = _dbContext.UserRoles.FirstOrDefault(u => u.UserId == roleVM.ApplicationUser.Id).RoleId;
+            string oldRole = _dbContext.Roles.FirstOrDefault(u => u.Id == roleId).Name;
+
+            ApplicationUser userFromDB = _dbContext.ApplicationUsers.Find(roleVM.ApplicationUser.Id);
+
+            if (!(roleVM.ApplicationUser.Role == oldRole)) {
+                _userManager.RemoveFromRoleAsync(userFromDB, oldRole).GetAwaiter().GetResult();
+                _userManager.AddToRoleAsync(userFromDB, roleVM.ApplicationUser.Role).GetAwaiter().GetResult();
+            }
+
+            if (ModelState.IsValid) 
+            {
+                userFromDB.Name = roleVM.ApplicationUser.Name;
+                userFromDB.Email = roleVM.ApplicationUser.Email;
+                _dbContext.ApplicationUsers.Update(userFromDB);
+                _dbContext.SaveChanges();
+
+                TempData["success"]= "User updated successfully";
+                return RedirectToAction(nameof(Index));
+            }
+
             return View();
         }
 
